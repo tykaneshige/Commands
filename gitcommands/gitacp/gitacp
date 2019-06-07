@@ -1,5 +1,4 @@
 # Created by Thomas Kaneshige
-# Last Updated: 6 June 2019; 18:15
 # Email: tykaneshige@gmail.com
 
 # The gitacp script performs the following actions:
@@ -18,5 +17,5 @@ then
 fi
 
 git add -A
-git commit -m "$0"
+git commit -m "$1"
 git push
