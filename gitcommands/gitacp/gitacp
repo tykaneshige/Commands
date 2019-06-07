@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Verify that a commit message has been passed to this command.
+# If no message has been passed, throw an error.
+
+if [ $# != 1 ]
+then
+    echo "Please pass one commit message."
+    return
+fi
+
+git add -A
+git commit -m "$0"
+git push
