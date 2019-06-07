@@ -1,8 +1,16 @@
+# Created by Thomas Kaneshige
+# Last Updated: 6 June 2019; 18:15
+# Email: tykaneshige@gmail.com
+
+# The gitacp script performs the following actions:
+# - Adds all changes made since last commit
+# - Commits all changes with the message passed to this script
+# - Pushes commit to Github
+
 #!/bin/bash
 
 # Verify that a commit message has been passed to this command.
 # If no message has been passed, throw an error.
-
 if [ $# != 1 ]
 then
     echo "Please pass one commit message."
