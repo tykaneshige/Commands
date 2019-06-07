@@ -6,7 +6,7 @@
 if [ $# != 1 ]
 then
     echo "Please pass one commit message."
-    return
+    exit
 fi
 
 git add -A
