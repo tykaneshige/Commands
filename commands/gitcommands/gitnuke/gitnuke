@@ -1,15 +1,33 @@
+#!/bin/bash
 # Created by Leonid Krashanoff
 # Email: krashanoff@ucla.edu
 
 # The gitnuke script performs the following actions:
-# - Generates a patch for your current work
-# - Resets the local history to the commit before the one you want to nuke
+# - Generates a patch for your current work, which is saved to the first argument
+#   or [repoPath]/gitnuke
+# - Resets the local history to the previous commit
 # - Pushes to origin with the --force flag, overwriting its copy of the history
 # - Leaves you to ponder your actions
 # Please be aware that your patch will not automatically be committed. This is
 # left to the user to decide.
 
-#!/bin/bash
+if [ ! -z "$(git rev-parse)" ]
+then
+	echo "gitnuke must be run from within a git repository."
+	exit
+fi
+
+toplevel="$(git rev-parse --show-toplevel)"
+
+if [ $# = 1 ] && [ -d "$1" ]
+then
+	echo "Saving patch file to "$1""
+	path="$1"
+elif [ $# = 1 ] && [ ! -d "$1" ]
+then
+	path=""$toplevel"/gitnuke"
+	echo ""$1" is not a valid directory. Defaulting to "$path"."
+fi
 
 # Verify that a commit message has been passed to this command.
 # If no message has been passed, throw an error.
@@ -23,6 +41,7 @@ do
 	then
 		exit
 	elif [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]
+	then
 		continue
 	else
 		break
@@ -30,7 +49,6 @@ do
 done
 
 prevcommit="$(git rev-parse --short=7 HEAD~2)"
-toplevel="$(git rev-parse --show-toplevel)"
 
 # Create temporary file
 tmp="$(mktemp)"
@@ -42,7 +60,7 @@ git diff HEAD~2 HEAD > "$tmp"
 
 # Nuke previous commit
 git reset --hard HEAD~2
-git push origin master --force
+git push --force
 
 # Create gitnuke folder if it doesn't exist
 if [ ! -d "$toplevel"/gitnuke ]
@@ -51,7 +69,7 @@ then
 fi
 
 # Write the patch
-cat "$tmp" > "$toplevel"/gitnuke/"$prevcommit".patch
+cat "$tmp" > "$path"/"$prevcommit".patch
 rm "$tmp"
 
 echo
