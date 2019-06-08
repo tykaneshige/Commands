@@ -30,21 +30,29 @@ do
 done
 
 prevcommit="$(git rev-parse --short=7 HEAD~2)"
+toplevel="$(git rev-parse --show-toplevel)"
 
-# Generate temporary pipe
-mkfifo /tmp/gitnuke
+# Create temporary file
+tmp="$(mktemp)"
 
 # Generate patch
 git add .
 git commit -am "gitnuke generated backup following "$prevcommit""
-git diff HEAD~2 HEAD > /tmp/gitnuke
+git diff HEAD~2 HEAD > "$tmp"
 
 # Nuke previous commit
 git reset --hard HEAD~2
 git push origin master --force
 
-cat /tmp/gitnuke > "$(git rev-parse --show-toplevel)"/gitnuke/"$prevcommit".patch
-rm /tmp/gitnuke
+# Create gitnuke folder if it doesn't exist
+if [ ! -d "$toplevel"/gitnuke ]
+then
+	mkdir "$toplevel"/gitnuke
+fi
+
+# Write the patch
+cat "$tmp" > "$toplevel"/gitnuke/"$prevcommit".patch
+rm "$tmp"
 
 echo
 echo "Commit nuked."
