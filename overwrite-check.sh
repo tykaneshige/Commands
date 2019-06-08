@@ -1,3 +1,4 @@
+#!/bin/bash
 # Author: Matthew Fan <fanma@ucla.edu>
 #
 # This script checks to see if installing these commands has
@@ -7,8 +8,6 @@
 # DO NOT RENAME ME
 # THIS SCRIPT IS A DEPENDENCY
 
-
-#!/bin/sh
 
 if [ $# = 1 ]
 then
