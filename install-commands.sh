@@ -1,3 +1,10 @@
+# Created by: Matthew Fan
+# Email: fanma@ucla.edu
+#
+# The install-commands.sh script installs all executable files under
+# ./commands into /usr/bin by default or any other specified directory
+
+
 #!/bin/sh
 
 if [ $# = 1 ]
