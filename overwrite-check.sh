@@ -3,6 +3,9 @@
 # This script checks to see if installing these commands has
 # the possibility of overwriting existing commands in the 
 # install directory or specified directory
+#
+# DO NOT RENAME ME
+# THIS SCRIPT IS A DEPENDENCY
 
 
 #!/bin/sh
