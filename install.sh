@@ -1,4 +1,20 @@
-#!/bin/sh
+#!/bin/bash
+# Created by: Matthew Fan
+# Email: fanma@ucla.edu
+#
+# The install-commands.sh script installs all executable files under
+# ./commands into /usr/bin by default or any other specified directory
+
+
+# check to see if we have overwrite-check.sh script
+checkTemp="$(ls | grep "overwrite-check.sh" )"
+
+if [ "$checkTemp" != "overwrite-check.sh" ]
+then
+    echo "Error: overwrite-check.sh not found" >&2
+    exit
+fi
+
 
 if [ $# = 1 ]
 then
@@ -10,6 +26,10 @@ then
 else
     installPath="/usr/bin"
 fi
+
+
+echo "Possible overwrites: "
+./overwrite-check.sh "$installPath"
 
 
 echo "Okay to install to $installPath? [y , n]"
