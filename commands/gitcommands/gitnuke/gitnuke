@@ -1,0 +1,50 @@
+# Created by Leonid Krashanoff
+# Email: krashanoff@ucla.edu
+
+# The gitnuke script performs the following actions:
+# - Generates a patch for your current work
+# - Resets the local history to the commit before the one you want to nuke
+# - Pushes to origin with the --force flag, overwriting its copy of the history
+# - Leaves you to ponder your actions
+# Please be aware that your patch will not automatically be committed. This is
+# left to the user to decide.
+
+#!/bin/bash
+
+# Verify that a commit message has been passed to this command.
+# If no message has been passed, throw an error.
+while [ true ]
+do
+	echo "This command will erase your previous commit from both the remote and local histories.\
+	Are you sure you want to do this? [y/n]"
+	read confirm
+
+	if [ "$confirm" = "n" ] || [ "$confirm" = "N" ]
+	then
+		exit
+	elif [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]
+		continue
+	else
+		break
+	fi
+done
+
+prevcommit="$(git rev-parse --short=7 HEAD~2)"
+
+# Generate temporary pipe
+mkfifo /tmp/gitnuke
+
+# Generate patch
+git add .
+git commit -am "gitnuke generated backup following "$prevcommit""
+git diff HEAD~2 HEAD > /tmp/gitnuke
+
+# Nuke previous commit
+git reset --hard HEAD~2
+git push origin master --force
+
+cat /tmp/gitnuke > "$(git rev-parse --show-toplevel)"/gitnuke/"$prevcommit".patch
+rm /tmp/gitnuke
+
+echo
+echo "Commit nuked."
