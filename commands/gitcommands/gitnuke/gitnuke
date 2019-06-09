@@ -10,6 +10,9 @@
 # - Leaves you to ponder your actions
 # Please be aware that your patch will not automatically be committed. This is
 # left to the user to decide.
+#
+# Known issues: will erase two commits if there are no changes to be committed at
+# command runtime.
 
 if [ ! -z "$(git rev-parse)" ]
 then
@@ -48,14 +51,14 @@ do
 	fi
 done
 
-prevcommit="$(git rev-parse --short=7 HEAD~2)"
+prevcommit="$(git rev-parse --short=7 HEAD)"
 
 # Create temporary file
 tmp="$(mktemp)"
 
 # Generate patch
 git add .
-git commit -am "gitnuke generated backup following "$prevcommit""
+git commit -am "gitnuke generated backup of "$prevcommit" and later work"
 git diff HEAD~2 HEAD > "$tmp"
 
 # Nuke previous commit
