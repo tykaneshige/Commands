@@ -69,7 +69,7 @@ then
 fi
 
 # Write the patch
-cat "$tmp" > "$path"/"$prevcommit".patch
+cat "$tmp" > "$path"/"$prevcommit".diff
 rm "$tmp"
 
 echo
