@@ -84,4 +84,4 @@ cat "$tmp" > "$path"/GITNUKE/"$prevcommit".diff
 rm "$tmp"
 
 echo
-echo "Commit nuked successfully."
+echo "Commit nuked successfully, patch saved to "$path"/GITNUKE/"$prevcommit.diff"."
