@@ -60,9 +60,7 @@ tmp="$(mktemp)"
 # Add backup information and generate patch
 patchpath=""$toplevel"/GITNUKE_PATCH.md"
 touch "$patchpath"
-
-echo -en "gitnuke generated backup on "$(date +'%m-%d-%Y %r')" for "$toplevel" on branch "$branch".\nChanges described are relative to the following commit:\n"$commitmsg"" > "$patchpath"
-
+echo -en "gitnuke generated backup on "$(date +'%m-%d-%Y %r')" for "$toplevel" on branch "$branch".\nChanges described are relative to the following commit:\n"$commitmsg"\n" > "$patchpath"
 git add -A
 git commit -am "gitnuke generated backup of "$prevcommit" and later work"
 git diff HEAD~2 HEAD > "$tmp"
