@@ -10,9 +10,6 @@
 # - Leaves you to ponder your actions
 # Please be aware that your patch will not automatically be committed. This is
 # left to the user to decide.
-#
-# Known issues: will erase two commits if there are no changes to be committed at
-# command runtime.
 
 if [ ! -z "$(git rev-parse)" ]
 then
@@ -24,16 +21,14 @@ toplevel="$(git rev-parse --show-toplevel)"
 
 if [ $# = 1 ] && [ -d "$1" ]
 then
-	echo "Saving patch file to "$1""
+	echo "Saving patch file to "$1"/GITNUKE"
 	path="$1"
 elif [ $# = 1 ] && [ ! -d "$1" ]
 then
-	path=""$toplevel"/gitnuke"
-	echo ""$1" is not a valid directory. Defaulting to "$path"."
+	path="$toplevel"
+	echo ""$1" is not a valid directory. Saving patch file to default: "$path"/GITNUKE."
 fi
 
-# Verify that a commit message has been passed to this command.
-# If no message has been passed, throw an error.
 while [ true ]
 do
 	echo "This command will erase your previous commit from both the remote and local histories.\
@@ -51,13 +46,21 @@ do
 	fi
 done
 
+# Get relevant commit information
 prevcommit="$(git rev-parse --short=7 HEAD)"
+commitmsg="$(git rev-list --format=%B --max-count=1 HEAD~)"
+branch="$(git rev-parse --abbrev-ref HEAD)"
 
 # Create temporary file
 tmp="$(mktemp)"
 
-# Generate patch
-git add .
+# Add backup information and generate patch
+touch "$toplevel"/GITNUKE.md
+
+echo "gitnuke generated backup on "$(date +'%m-%d-%Y %r')" for "$toplevel"/"$branch".\nChanges are relative\
+to the following commit:\n"$commitmsg"" > "$toplevel"/GITNUKE.md
+
+git add -A
 git commit -am "gitnuke generated backup of "$prevcommit" and later work"
 git diff HEAD~2 HEAD > "$tmp"
 
@@ -66,9 +69,9 @@ git reset --hard HEAD~2
 git push --force
 
 # Create gitnuke folder if it doesn't exist
-if [ ! -d "$toplevel"/gitnuke ]
+if [ ! -d "$path"/GITNUKE ]
 then
-	mkdir "$toplevel"/gitnuke
+	mkdir "$path"/GITNUKE
 fi
 
 # Write the patch
