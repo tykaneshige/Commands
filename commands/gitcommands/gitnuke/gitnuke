@@ -1,0 +1,83 @@
+#!/bin/bash
+# Created by Leonid Krashanoff
+# Email: krashanoff@ucla.edu
+
+# The gitnuke script performs the following actions:
+# - Generates a patch for your current work, which is saved to a directory GITNUKE
+#   relative to the first argument or [repoPath]/GITNUKE
+# - Resets the local history to the previous commit
+# - Pushes to origin with the --force flag, overwriting its copy of the history
+# - Leaves you to ponder your actions
+# Please be aware that your patch will not automatically be committed. This is
+# left to the user to decide.
+
+# Confirm we are in a git repository
+if [ ! -z "$(git rev-parse)" ]
+then
+	echo "gitnuke must be run from within a git repository."
+	exit
+fi
+
+# Get top level of our local repository
+toplevel="$(git rev-parse --show-toplevel)"
+
+# Check for arguments, confirm volition
+if [ $# = 1 ] && [ -d "$1" ]
+then
+	echo "Saving patch file to "$1"/GITNUKE"
+	path="$1"
+elif [ $# = 1 ] && [ ! -d "$1" ]
+then
+	path="$toplevel"
+	echo ""$1" is not a valid directory. Saving patch file to default: "$path"/GITNUKE."
+fi
+
+while [ true ]
+do
+	echo "This command will erase your previous commit from both the remote and local histories.\
+	Are you sure you want to do this? [y/n]"
+	read confirm
+
+	if [ "$confirm" = "n" ] || [ "$confirm" = "N" ]
+	then
+		exit
+	elif [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]
+	then
+		continue
+	else
+		break
+	fi
+done
+
+# Get relevant commit information
+prevcommit="$(git rev-parse --short=7 HEAD)"
+commitmsg="$(git rev-list --format=%B --max-count=1 HEAD~)"
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+# Create temporary file
+tmp="$(mktemp)"
+
+# Add backup information and generate patch
+patchpath=""$toplevel"/GITNUKE_PATCH.md"
+touch "$patchpath"
+echo -en "gitnuke generated backup on "$(date +'%m-%d-%Y %r')" for "$toplevel" on branch "$branch".\nChanges described are relative to the following commit:\n"$commitmsg"\n" > "$patchpath"
+git add -A
+git commit -am "gitnuke generated backup of "$prevcommit" and later work"
+git diff HEAD~2 HEAD > "$tmp"
+
+# Nuke previous commit
+git reset --hard HEAD~2
+git push --force
+
+# Create gitnuke folder if it doesn't exist
+if [ ! -d "$path"/GITNUKE ]
+then
+	mkdir "$path"/GITNUKE
+fi
+
+# Write the patch
+cat "$tmp" > "$path"/GITNUKE/"$prevcommit".diff
+rm "$tmp"
+
+echo
+echo "Commit nuked successfully, patch saved to "$path"/GITNUKE/"$prevcommit.diff"."
